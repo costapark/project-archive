@@ -363,6 +363,27 @@ RD.GameLogic = (() => {
       this.toast(`${name} 자동 조합 ${made.length}회  ·  최고 [${RD.GRADES[top.grade].name}] ${top.name}`, RD.unitTextColor(top));
       return made;
     }
+    // Lv.0 자동 조합: 같은 Lv.0 유닛이 3개 모이면 저절로 조합 (결과는 평소처럼 무작위 Lv.1)
+    //  세 번째 유닛이 소환 연출(born)을 마친 뒤 한 프레임에 한 묶음씩 → 소환 → 조합이 눈에 보이게
+    autoMergeLv0() {
+      const G = this.G, groups = {};
+      for (const u of G.units) {
+        if (u.type.grade !== 0 || !RD.canMerge(u.type)) continue;
+        (groups[u.type.id] = groups[u.type.id] || []).push(u);
+      }
+      for (const id in groups) {
+        const g = groups[id];
+        if (g.length < 3 || g[2].born < 1) continue;
+        const { col, row } = g[0];
+        this.removeUnit(g[0]); this.removeUnit(g[1]); this.removeUnit(g[2]);
+        const nt = pick(RD.combineTargets(g[0].type));
+        const nu = this.addUnit(nt, col, row);
+        this.addFx({ k: 'combine', x: nu.x, y: nu.y, r: 80, color: RD.CATEGORIES[nt.cat].color, life: 0.6 });
+        this.addFloat(nu.x, nu.y - 52, `자동 조합 → ${RD.CATEGORIES[nt.cat].name}`, RD.CATEGORIES[nt.cat].color, 24);
+        return nu;
+      }
+      return null;
+    }
     // 판매가 (히로인 카드 판매 환급 % 반영)
     sellPrice(t) { return Math.max(10, Math.floor(RD.sellPrice(t) * this.goldMul.sell / 10) * 10); }
     sell(u) {
@@ -566,6 +587,7 @@ RD.GameLogic = (() => {
         }
       }
       if (G.packetRewards.length) this.placePacketRewards();
+      this.autoMergeLv0();
 
       // 적 이동
       for (const e of G.enemies) {

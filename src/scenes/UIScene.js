@@ -70,9 +70,19 @@ RD.UIScene = class UIScene extends Phaser.Scene {
     this.upgBtns = RD.CAT_KEYS.map((k, i) => new RD.UIButton(this, UI.upg[i], { scheme: k, labelSize: 40, onClick: act(L => L.upgrade(k)) }));
     this.btn.mine = new RD.UIButton(this, UI.btnMine, { scheme: 'mine', labelSize: 40, onClick: act(L => L.upgradeMine()) });
     // 타입별 자동 조합 (버튼 아래 줄에 레벨별 보유 수 표시)
-    this.autoBtns = RD.AUTO_KEYS.map((k, i) => new RD.UIButton(this, UI.auto[i], {
-      scheme: 'dark', labelSize: 34, subSize: 24, labelColor: RD.CATEGORIES[k].color, dimSubColor: '#8a8199',
-      onClick: act(L => L.autoCombine(k)) }));
+    //  Lv.0 은 버튼 없이 3개가 모이면 저절로 조합 (GameLogic.autoMergeLv0) → 그 칸은 보유 수 안내판
+    this.autoBtns = RD.AUTO_KEYS.map((k, i) => {
+      if (k === 'none') {
+        const b = UI.auto[i], pg = this.add.graphics();
+        pg.fillStyle(0x1e162a, 0.9).fillRoundedRect(b.x, b.y, b.w, b.h, 22);
+        pg.lineStyle(2, 0xffffff, 0.12).strokeRoundedRect(b.x, b.y, b.w, b.h, 22);
+        this.add.text(b.x + b.w / 2, b.y + 30, 'Lv.0 자동 조합', S(28, RD.CATEGORIES.none.color)).setOrigin(0.5);
+        return null;
+      }
+      return new RD.UIButton(this, UI.auto[i], {
+        scheme: 'dark', labelSize: 34, subSize: 24, labelColor: RD.CATEGORIES[k].color, dimSubColor: '#8a8199',
+        onClick: act(L => L.autoCombine(k)) });
+    });
     // 레벨별 보유 수 칩 (레벨 색 = 유닛 머리 위 레벨 표시 색). 타입 칸은 Lv.1~5, 마지막 칸은 Lv.0 + 히든
     const maxN = RD.MAX_NORMAL_GRADE;
     this.autoChips = RD.AUTO_KEYS.map((k, i) => {
@@ -113,7 +123,7 @@ RD.UIScene = class UIScene extends Phaser.Scene {
     // ── 알림 ──
     this.toasts = [];
 
-    // ── PC 단축키: S 소환, D 조합, F 판매, G 타입 변경, 1/2/3 강화, 4 채굴 강화, 5 히든 강화, Q/W/E/R 자동 조합, B 레시피 도감, Space 배속, P/Esc 일시정지 ──
+    // ── PC 단축키: S 소환, D 조합, F 판매, G 타입 변경, 1/2/3 강화, 4 채굴 강화, 5 히든 강화, Q/W/E 자동 조합 (Lv.0 은 자동), B 레시피 도감, Space 배속, P/Esc 일시정지 ──
     if (this.input.keyboard) {
       this.input.keyboard.on('keydown', e => {
         const L = this.L, G = L.G;
@@ -131,7 +141,7 @@ RD.UIScene = class UIScene extends Phaser.Scene {
         else if (k === '5') L.upgradeHidden();
         else if (k === '1' || k === '2' || k === '3') L.upgrade(RD.CAT_KEYS[+k - 1]);
         else if (k === '4') L.upgradeMine();
-        else if ('qwer'.includes(k) && k.length === 1) L.autoCombine(RD.AUTO_KEYS['qwer'.indexOf(k)]);
+        else if ('qwe'.includes(k) && k.length === 1) L.autoCombine(RD.AUTO_KEYS['qwe'.indexOf(k)]);
       });
     }
   }
@@ -360,7 +370,7 @@ RD.UIScene = class UIScene extends Phaser.Scene {
     const lc = L.levelCounts();
     RD.AUTO_KEYS.forEach((k, i) => {
       const n = lc[k], ok = !!L.findMergeable(k), ch = this.autoChips[i];
-      this.autoBtns[i].set(`${RD.AUTO_CATS[k].name} 조합`, ' ', ok);
+      if (this.autoBtns[i]) this.autoBtns[i].set(`${RD.AUTO_CATS[k].name} 조합`, ' ', ok);
       const key = n.join(',') + ok + lc.hidden;
       if (ch.last !== key) {
         ch.last = key; ch.g.clear();

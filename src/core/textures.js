@@ -298,6 +298,34 @@ RD.Textures = (() => {
       c.font = `900 26px ${RD.FONT}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#140c1c'; c.fillText(label, 37, 21);
     });
     RD.GRADES.forEach((gr, i) => { lvtag('lvtag_' + i, gr.name, gr.color); lvtag('lvtagH_' + i, gr.name, null); });
+    // 필드 유닛 타입 표시: 발밑 타입 색 원판(흰색 → 틴트) + 오른쪽 아래 타입 아이콘 (워리어 검 · 아처 활 · 위저드 별)
+    canvasTex(scene, 'typeplate', 96, 40, c => {
+      c.beginPath(); c.ellipse(48, 20, 44, 16, 0, 0, TAU);
+      c.fillStyle = 'rgba(255,255,255,0.35)'; c.fill();
+      c.lineWidth = 5; c.strokeStyle = '#ffffff'; c.stroke();
+    });
+    const typeIcon = (cat, glyph) => canvasTex(scene, 'typeic_' + cat, 44, 44, c => {
+      c.beginPath(); c.arc(22, 22, 19, 0, TAU); c.fillStyle = RD.CATEGORIES[cat].color; c.fill();
+      c.lineWidth = 3; c.strokeStyle = 'rgba(0,0,0,0.8)'; c.stroke();
+      c.strokeStyle = '#ffffff'; c.fillStyle = '#ffffff'; c.lineCap = 'round'; c.lineJoin = 'round';
+      glyph(c);
+    });
+    typeIcon('warrior', c => {          // 검 (대각선 칼날 + 가드 + 손잡이)
+      c.lineWidth = 4.5; c.beginPath(); c.moveTo(30, 12); c.lineTo(17, 25); c.stroke();
+      c.lineWidth = 4; c.beginPath(); c.moveTo(12, 21); c.lineTo(21, 30); c.stroke();
+      c.lineWidth = 3.5; c.beginPath(); c.moveTo(16, 26); c.lineTo(11, 31); c.stroke();
+    });
+    typeIcon('archer', c => {           // 활 + 화살
+      c.lineWidth = 3.5; c.beginPath(); c.arc(16, 22, 12, -Math.PI / 2.4, Math.PI / 2.4); c.stroke();
+      c.lineWidth = 1.8; c.beginPath(); c.moveTo(19.4, 10.4); c.lineTo(19.4, 33.6); c.stroke();
+      c.lineWidth = 3; c.beginPath(); c.moveTo(12, 22); c.lineTo(33, 22); c.stroke();
+      c.beginPath(); c.moveTo(34, 22); c.lineTo(28, 17.5); c.lineTo(28, 26.5); c.closePath(); c.fill();
+    });
+    typeIcon('wizard', c => {           // 네 갈래 별 (마법)
+      c.beginPath();
+      for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 - Math.PI / 2, r = i % 2 ? 4.5 : 13; c.lineTo(22 + Math.cos(a) * r, 22 + Math.sin(a) * r); }
+      c.closePath(); c.fill();
+    });
     canvasTex(scene, 'coin', 48, 48, c => {
       c.beginPath(); c.arc(24, 24, 20, 0, TAU); c.fillStyle = '#ffc107'; c.fill();
       c.lineWidth = 4; c.strokeStyle = '#8a5a00'; c.stroke();

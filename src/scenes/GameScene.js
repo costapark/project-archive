@@ -170,6 +170,12 @@ RD.GameScene = class GameScene extends Phaser.Scene {
     const body = RD.Textures.unitBody(this, t, false);
     c.shadowImg = this.add.image(0, 32, 'shadow');
     c.layers[0].add(c.shadowImg);
+    // 타입 표시 (워리어/아처/위저드): 발밑 타입 색 원판 + 아이콘. Lv.0(타입 없음)·레거시(무지개)는 없음
+    const typed = !t.hidden && RD.CAT_KEYS.includes(t.cat);
+    if (typed) {
+      c.typePlate = this.add.image(0, 30, 'typeplate').setTint(RD.util.colorInt(RD.CATEGORIES[t.cat].color)).setAlpha(0.9);
+      c.layers[0].add(c.typePlate);
+    }
     if (body.rdSprite) this.addLevelFx(c, t);
     else if (t.grade >= 3) { c.halo = this.add.image(0, 0, 'halo').setAlpha(0.22); c.add(c.halo); }
     c.body = body;
@@ -190,6 +196,7 @@ RD.GameScene = class GameScene extends Phaser.Scene {
     c.add(c.badge);
     c.lvTag = this.add.image(-22, -42, (t.hidden ? 'lvtagH_' : 'lvtag_') + t.grade);     // 레벨 표시 (왼쪽 위, 히든은 무지개)
     c.add(c.lvTag);
+    if (typed) c.add(this.add.image(32, 22, 'typeic_' + t.cat));    // 타입 아이콘 (오른쪽 아래)
     c.grade = t.grade; c.colStr = RD.unitColorStr(t); c.lastAtk = 0;
     this.tintUnitView(c, time0());
     return c;
