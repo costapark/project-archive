@@ -15,6 +15,7 @@ RD.TitleScene = class TitleScene extends Phaser.Scene {
   constructor() { super('TitleScene'); }
 
   create() {
+    RD.Telemetry.screen('title');     // 플레이 통계: 어느 화면까지 왔는지
     const W = RD.W, S = RD.util.textStyle;
     this.started = false;
     this.t = 0;

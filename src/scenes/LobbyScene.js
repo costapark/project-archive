@@ -19,6 +19,7 @@ RD.LobbyScene = class LobbyScene extends Phaser.Scene {
   constructor() { super('LobbyScene'); }
 
   create() {
+    RD.Telemetry.screen('lobby');     // 플레이 통계: 어느 화면까지 왔는지
     const W = RD.W, S = RD.util.textStyle, fmt = RD.util.fmt, SV = RD.Save.data;
     this.modal = null;
     this.started = false;
