@@ -56,7 +56,7 @@ RD.CapsuleScene = class CapsuleScene extends Phaser.Scene {
     this.btn1 = RD.Neon.button(this, { x: 60, y: 1450, w: 465, h: 150 }, '1개 해독', '', 0x7dffb0, () => this.open(1), { size: 46, subSize: 26, subSpacing: 2 });
     this.btn10 = RD.Neon.button(this, { x: 555, y: 1450, w: 465, h: 150 }, '10개 해독', '', 0xff2bd6, () => this.open(10), { size: 46, subSize: 26, subSpacing: 2 });
     this.add.text(W / 2, 1690, `${M.fragmentMinRound} 스테이지 이상 도달하면 다이브가 끝날 때 기억 파편을 회수합니다`, S(26, '#7fa8c9', 0, 'normal')).setOrigin(0.5);
-    this.add.text(W / 2, 1740, `같은 히로인 ${M.copiesPerLevel}장마다 싱크 Lv 상승 (최대 Lv.${M.maxCardLevel})`, S(26, '#7fa8c9', 0, 'normal')).setOrigin(0.5);
+    this.add.text(W / 2, 1740, `같은 메모리 ${M.copiesPerLevel}장마다 싱크 Lv 상승 (최대 Lv.${M.maxCardLevel})`, S(26, '#7fa8c9', 0, 'normal')).setOrigin(0.5);
     this.refresh();
 
     if (this.input.keyboard) this.input.keyboard.on('keydown', e => { if (e.key === 'Escape') this.modal ? this.closeResult() : this.back(); });
@@ -107,7 +107,7 @@ RD.CapsuleScene = class CapsuleScene extends Phaser.Scene {
     c.add(dim);
     c.add(this.add.text(W / 2, 300, '해독 완료', S(60, '#ffffff')).setOrigin(0.5).setShadow(0, 0, '#7dffb0', 16, false, true));
     const nNew = res.filter(r => r.isNew).length, nUp = res.filter(r => r.levelUp).length;
-    c.add(this.add.text(W / 2, 370, `${res.length}개 해독  ·  새 히로인 ${nNew}  ·  레벨 업 ${nUp}`, S(28, '#b9d4ee', 0, 'normal')).setOrigin(0.5));
+    c.add(this.add.text(W / 2, 370, `${res.length}개 해독  ·  새 메모리 ${nNew}  ·  레벨 업 ${nUp}`, S(28, '#b9d4ee', 0, 'normal')).setOrigin(0.5));
 
     const tag = r => {
       if (r.refund) return [`최대 Lv · 파편 +${r.refund}`, '#7dffb0'];

@@ -11,7 +11,7 @@ RD.GameLogic = (() => {
     constructor(opts) {
       opts = opts || {};
       const CONFIG = RD.CONFIG;
-      // 히로인 카드 버프 (RD.Meta.runBuffs, 키는 RD.CARD_STATS). % 값은 그대로(예: 12 = +12%)
+      // 메모리 카드 버프 (RD.Meta.runBuffs, 키는 RD.CARD_STATS). % 값은 그대로(예: 12 = +12%)
       this.buffs = Object.assign({}, opts.buffs || {});
       const b = k => this.buffs[k] || 0;
       this.dmgMul = { warrior: 1 + (b('dmg_all') + b('dmg_warrior')) / 100, archer: 1 + (b('dmg_all') + b('dmg_archer')) / 100,
@@ -183,12 +183,12 @@ RD.GameLogic = (() => {
     countType(id) { let c = 0; for (const u of this.G.units) if (u.type.id === id) c++; return c; }
     // 공격력 = 기본 공격력 + 공격력 계수 × 타입 강화 레벨 (Lv.0 은 타입이 없어 강화 영향 없음)
     //  히든 유닛은 여기에 히든 강화 배율을 곱함
-    //  히로인 카드: 전체 공격력 + 타입 공격력(히든은 히든 공격력) % 를 곱함
+    //  메모리 카드: 전체 공격력 + 타입 공격력(히든은 히든 공격력) % 를 곱함
     unitDmg(t) {
       const d = t.dmg + (t.coef || 0) * (this.G.upg[t.cat] || 0);
       return t.hidden ? d * RD.BAL.hiddenMult(this.G.hiddenLv) * this.dmgMul.hidden : d * this.dmgMul[t.cat];
     }
-    // 공격 간격(초): 히로인 카드 공격 속도 % 반영
+    // 공격 간격(초): 메모리 카드 공격 속도 % 반영
     unitSpd(t) { return t.spd * this.spdMul; }
     freeCells() {
       const out = [], grid = this.G.grid;
@@ -384,7 +384,7 @@ RD.GameLogic = (() => {
       }
       return null;
     }
-    // 판매가 (히로인 카드 판매 환급 % 반영)
+    // 판매가 (메모리 카드 판매 환급 % 반영)
     sellPrice(t) { return Math.max(10, Math.floor(RD.sellPrice(t) * this.goldMul.sell / 10) * 10); }
     sell(u) {
       if (!u) return this.toast('유닛을 먼저 선택하세요', '#ff8a80');

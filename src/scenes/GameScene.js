@@ -9,7 +9,7 @@ RD.GameScene = class GameScene extends Phaser.Scene {
   constructor() { super('GameScene'); }
 
   create() {
-    // 싱크 슬롯에 장착한 히로인 카드 능력을 이번 판에 적용
+    // 싱크 슬롯에 장착한 메모리 카드 능력을 이번 판에 적용
     this.logic = new RD.GameLogic({ speed: this.registry.get('speed') || 1, onGameOver: () => this.onGameOver(), buffs: RD.Meta.runBuffs() });
     this.runResult = null;
     RD.debug.attach(this);

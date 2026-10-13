@@ -1,5 +1,5 @@
 /* LobbyScene: 지휘관 로비
- *  기억 파편 / 최고 기록 / 뉴럴 싱크 슬롯(히로인 카드 3장) / 싱크 효과 / 난이도 / 다이브 시작 / 갤러리 / 메모리 캡슐 / 작전 브리핑
+ *  기억 파편 / 최고 기록 / 뉴럴 싱크 슬롯(메모리 카드 3장) / 싱크 효과 / 난이도 / 다이브 시작 / 갤러리 / 메모리 캡슐 / 작전 브리핑
  * 레이아웃 (1080x1920 기준)
  *   y 40~150     제목(왼쪽) + [백업] 155x100 (x 455) + 기억 파편 칩(오른쪽, 640~1040)
  *   y 205~250    최고 기록 / 기억 복원율
@@ -8,7 +8,7 @@
  *   y 800~980    싱크 효과 요약 (2열)
  *   y 1030~1120  난이도 [이지][노멀][하드] 각 190x90
  *   y 1160~1310  [다이브 시작] 600x150
- *   y 1360~1490  [히로인 갤러리] [메모리 캡슐] 각 465x130
+ *   y 1360~1490  [메모리 갤러리] [메모리 캡슐] 각 465x130
  *   y 1540~1640  [기록 · 업적] [작전 브리핑] 각 465x100
  *   y 1690~1770  시스템 메시지 티커
  *   y 1860       버전
@@ -45,14 +45,14 @@ RD.LobbyScene = class LobbyScene extends Phaser.Scene {
 
     // ── 뉴럴 싱크 슬롯 ──
     this.add.text(60, 300, '뉴럴 싱크', S(38, '#ffffff')).setOrigin(0, 0.5);
-    this.add.text(250, 302, '다이브에 함께할 히로인 (슬롯을 눌러 교체)', S(24, '#7fa8c9', 0, 'normal')).setOrigin(0, 0.5);
+    this.add.text(250, 302, '다이브에 함께할 메모리 (슬롯을 눌러 교체)', S(24, '#7fa8c9', 0, 'normal')).setOrigin(0, 0.5);
     this.buildSlots();
     this.buildBuffs();
 
     // ── 난이도 / 버튼 ──
     this.makeDifficulty(1030);
     RD.Neon.button(this, { x: 240, y: 1160, w: 600, h: 150 }, '다이브 시작', 'DIVE IN', 0x00e5ff, () => this.dive());
-    RD.Neon.button(this, { x: 60, y: 1360, w: 465, h: 130 }, '히로인 갤러리', 'HEROINE ARCHIVE', 0xff2bd6,
+    RD.Neon.button(this, { x: 60, y: 1360, w: 465, h: 130 }, '메모리 갤러리', 'MEMORY ARCHIVE', 0xff2bd6,
       () => this.go('GalleryScene', {}), { size: 42, subSize: 20, subSpacing: 4 });
     const caps = RD.Meta.capsules();
     this.capBtn = RD.Neon.button(this, { x: 555, y: 1360, w: 465, h: 130 }, '메모리 캡슐', caps ? `해독 가능 ${caps}개` : 'MEMORY CAPSULE',
@@ -75,7 +75,7 @@ RD.LobbyScene = class LobbyScene extends Phaser.Scene {
       last ? `> 직전 다이브: ${RD.DIFFICULTIES[last.diff] ? RD.DIFFICULTIES[last.diff].name : ''} R${last.round}, 기억 파편 +${fmt(last.fragments)}` : '> 첫 다이브를 준비하십시오',
       `> ${RD.META.fragmentMinRound} 스테이지부터 기억 파편 회수 가능`,
       `> 기억 파편 ${RD.META.capsuleCost}개 = 메모리 캡슐 1개`,
-      '> 같은 히로인 5장마다 싱크율(레벨) 상승',
+      '> 같은 메모리 5장마다 싱크율(레벨) 상승',
     ];
     if (SV.stats.runs) this.messages.push(`> 누적 다이브 ${fmt(SV.stats.runs)}회. 포기를 모르는 지휘관입니다`);
     // 이후로는 문구 풀(세계관 · 재치 · 팁)을 섞어서 돌림
@@ -125,8 +125,8 @@ RD.LobbyScene = class LobbyScene extends Phaser.Scene {
     this.add.text(84, 830, '싱크 효과', S(26, '#00e5ff')).setOrigin(0, 0.5);
     const keys = Object.keys(RD.CARD_STATS).filter(k => sum[k]);
     if (!keys.length) {
-      this.add.text(RD.W / 2, 905, RD.Meta.ownedCount() ? '슬롯에 히로인을 장착하면 이번 다이브에 능력이 적용됩니다'
-        : '메모리 캡슐을 해독해 히로인 카드를 복원하십시오', S(26, '#7fa8c9', 0, 'normal')).setOrigin(0.5);
+      this.add.text(RD.W / 2, 905, RD.Meta.ownedCount() ? '슬롯에 메모리를 장착하면 이번 다이브에 능력이 적용됩니다'
+        : '메모리 캡슐을 해독해 메모리 카드를 복원하십시오', S(26, '#7fa8c9', 0, 'normal')).setOrigin(0.5);
       return;
     }
     keys.slice(0, 8).forEach((k, i) => {
@@ -204,7 +204,7 @@ RD.LobbyScene = class LobbyScene extends Phaser.Scene {
       ['패배', `전장의 적이 ${C.enemyLimit}기에 도달하면 링크 붕괴`],
       ['보스', `${C.bossEvery}스테이지마다 방화벽 보스, ${C.bossTime}초 안에 돌파`],
       ['파편', `${M.fragmentMinRound}스테이지부터 기억 파편 회수 (10스테이지마다 보너스)`],
-      ['캡슐', `기억 파편 ${M.capsuleCost}개로 메모리 캡슐 해독 → 히로인 카드`],
+      ['캡슐', `기억 파편 ${M.capsuleCost}개로 메모리 캡슐 해독 → 메모리 카드`],
       ['싱크', `카드 ${M.slots}장 장착, 같은 카드 ${M.copiesPerLevel}장마다 레벨 업`],
     ];
     lines.forEach(([k, v], i) => {
@@ -233,7 +233,7 @@ RD.LobbyScene = class LobbyScene extends Phaser.Scene {
     c.add([dim, g]);
     c.add(this.add.text(W / 2, 570, '데이터 백업', S(56, '#ffffff')).setOrigin(0.5).setShadow(0, 0, '#00e5ff', 16, false, true));
     c.add(this.add.text(W / 2, 680, [
-      '진행 상황(기억 파편 · 히로인 카드 · 기록 · 업적)을',
+      '진행 상황(기억 파편 · 메모리 카드 · 기록 · 업적)을',
       '백업 코드로 복사해 메모장이나 메신저에 보관하세요.',
       '브라우저 데이터가 지워지거나 기기를 바꿨을 때',
       '코드를 붙여넣으면 그대로 복원됩니다.',

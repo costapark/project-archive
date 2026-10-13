@@ -141,7 +141,7 @@ RD.RecordScene = class RecordScene extends Phaser.Scene {
       ['   발견한 레거시 유닛', `${SV.codex.made.length} / ${RD.RECIPES.length}`],
       ['   누적 기억 파편', fmt(m.totalFragments)],
       ['   해독한 메모리 캡슐', fmt(m.opened)],
-      ['   복원한 히로인', `${RD.Meta.ownedCount()} / ${RD.HEROINES.length}`]);
+      ['   복원한 메모리', `${RD.Meta.ownedCount()} / ${RD.HEROINES.length}`]);
     const last = st.last;
     if (last) rows.push(['직전 다이브', `${RD.DIFFICULTIES[last.diff] ? RD.DIFFICULTIES[last.diff].name : ''} R${last.round} · 파편 +${fmt(last.fragments)}`, '#b9d4ee']);
     let y = 360;

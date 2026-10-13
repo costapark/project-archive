@@ -56,7 +56,7 @@ RD.TitleScene = class TitleScene extends Phaser.Scene {
       '> 네메시스 데이터 군단의 접근을 확인했습니다',
       '> 데이터 대역폭 확보 완료. 유산 소환 대기',
       '> 판타지 / SF 데이터 압축 오류(Glitch) 허용 범위',
-      '> 기억 파편을 회수해 히로인 카드의 봉인을 해제하십시오',
+      '> 기억 파편을 회수해 메모리 카드의 봉인을 해제하십시오',
     ];
     this.msgIdx = 0;
     this.ticker = this.add.text(80, 1720, '', S(30, '#7dffb0', 0, 'normal')).setOrigin(0, 0.5);
@@ -116,7 +116,7 @@ RD.TitleScene = class TitleScene extends Phaser.Scene {
   }
 
   newGame() {
-    if (RD.BackupUI.hasProgress() && !window.confirm('새 게임을 시작하면 지금 기록(기억 파편 · 히로인 카드 · 업적)이 모두 지워집니다.\n먼저 [게임 코드 발급]으로 백업해 두는 것을 권장합니다.\n\n정말 새로 시작할까요?')) return;
+    if (RD.BackupUI.hasProgress() && !window.confirm('새 게임을 시작하면 지금 기록(기억 파편 · 메모리 카드 · 업적)이 모두 지워집니다.\n먼저 [게임 코드 발급]으로 백업해 두는 것을 권장합니다.\n\n정말 새로 시작할까요?')) return;
     const diff = RD.Difficulty.get();
     RD.Save.reset();
     RD.Difficulty.set(diff);

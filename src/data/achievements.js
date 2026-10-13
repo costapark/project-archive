@@ -44,15 +44,15 @@ RD.ACH_CATS = {
   add('unit', 'hidden1', '숨겨진 레시피', '레거시 유닛 처음 만들기', S => S.cx.made.length, 1, 80);
   add('unit', 'hidden7', '레시피 연구가', '레거시 유닛 7종 발견', S => S.cx.made.length, 7, 150);
   add('unit', 'hiddenAll', '완전한 도감', () => `레거시 유닛 ${RD.RECIPES.length}종 모두 발견`, S => S.cx.made.length, () => RD.RECIPES.length, 300);
-  // 기억 (메모리 캡슐 / 히로인 카드)
+  // 기억 (메모리 캡슐 / 메모리 카드)
   [[1, 20], [50, 100], [200, 300]].forEach(([n, rw], i) =>
     add('memory', 'open' + n, ['첫 번째 해독', '기억 복원가', '아카이브 관리자'][i], `메모리 캡슐 ${n}개 해독`, S => S.m.opened, n, rw));
-  add('memory', 'own10', '되살아난 얼굴들', '히로인 10명 복원', owned, 10, 50);
-  add('memory', 'own20', '기억의 회랑', '히로인 20명 복원', owned, 20, 150);
-  add('memory', 'ownAll', '그랜드 아카이브', () => `히로인 ${RD.HEROINES.length}명 모두 복원`, owned, () => RD.HEROINES.length, 500);
-  add('memory', 'legend', '전설의 기억', '레전더리 히로인 복원', ownedGrade('legendary'), 1, 100);
-  add('memory', 'error404', 'ERROR 404', '404 ERROR 히로인 복원', ownedGrade('error404'), 1, 200);
-  add('memory', 'cardlv5', '완전 동기화', '히로인 카드 하나를 Lv.5 로', maxCardLv, 5, 200);
+  add('memory', 'own10', '되살아난 얼굴들', '메모리 10개 복원', owned, 10, 50);
+  add('memory', 'own20', '기억의 회랑', '메모리 20개 복원', owned, 20, 150);
+  add('memory', 'ownAll', '그랜드 아카이브', () => `메모리 ${RD.HEROINES.length}개 모두 복원`, owned, () => RD.HEROINES.length, 500);
+  add('memory', 'legend', '전설의 기억', '레전더리 메모리 복원', ownedGrade('legendary'), 1, 100);
+  add('memory', 'error404', 'ERROR 404', '404 ERROR 메모리 복원', ownedGrade('error404'), 1, 200);
+  add('memory', 'cardlv5', '완전 동기화', '메모리 카드 하나를 Lv.5 로', maxCardLv, 5, 200);
   RD.ACHIEVEMENTS = A;
 })();
 

@@ -1,4 +1,4 @@
-/* GalleryScene: 히로인 카드 갤러리 (전체 카드, 보유/미보유, 상세 정보, 싱크 장착)
+/* GalleryScene: 메모리 카드 갤러리 (전체 카드, 보유/미보유, 상세 정보, 싱크 장착)
  *  data.slot 이 있으면 로비의 그 싱크 슬롯에 장착할 카드를 고르는 모드
  * 레이아웃 (1080x1920 기준)
  *   y 0~200      제목 바 (RD.Neon.header) + [◀]
@@ -18,10 +18,10 @@ RD.GalleryScene = class GalleryScene extends Phaser.Scene {
     this.modal = null;
     this.leaving = false;
     this.bg = RD.Neon.background(this, 1700, { dim: 0.35, bits: 20, bitAlpha: 0.3 });
-    RD.Neon.header(this, '히로인 아카이브', 'HEROINE ARCHIVE', () => this.back());
+    RD.Neon.header(this, '메모리 아카이브', 'MEMORY ARCHIVE', () => this.back());
 
     const sub = this.slot !== null
-      ? [`싱크 슬롯 ${this.slot + 1} 에 장착할 히로인을 고르세요`, '#ffd54f']
+      ? [`싱크 슬롯 ${this.slot + 1} 에 장착할 메모리를 고르세요`, '#ffd54f']
       : [`기억 복원 ${RD.Meta.ownedCount()} / ${RD.HEROINES.length}  ·  카드를 눌러 상세 정보`, '#7dffb0'];
     this.add.graphics().setDepth(50).fillStyle(0x07060f, 0.96).fillRect(0, 200, W, 80);
     this.add.text(W / 2, 240, sub[0], S(28, sub[1], 0, 'normal')).setOrigin(0.5).setDepth(51);
