@@ -102,7 +102,7 @@ RD.UIScene = class UIScene extends Phaser.Scene {
       if (L.G.mode !== 'paused' || this.bookOpen) return;
       if (!this.quitArmed) { this.quitArmed = true; return; }
       this.quitArmed = false;
-      L.gameOver('지휘관이 다이브를 중단했습니다');
+      L.gameOver(RD.QUIT_REASON);
     } }).setDepth(41);
     // 히든 강화 잠김 안내 (히든 유닛을 처음 얻기 전)
     const hb = UI.btnHidden;

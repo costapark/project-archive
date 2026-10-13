@@ -5,6 +5,7 @@ RD.W = 1080;                // 논리 해상도 (9:16 세로)
 RD.H = 1920;
 RD.TEXT_RES = Math.min(2, Math.max(1, Math.ceil(window.devicePixelRatio || 1)));  // 텍스트 렌더 해상도 (선명도)
 RD.FONT = "'Pretendard','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR','Noto Sans CJK KR','Gothic A1','Nanum Gothic',sans-serif";
+RD.QUIT_REASON = '지휘관이 다이브를 중단했습니다';   // 일시정지 → 다이브 중단 시 게임 오버 사유 (통계에서 '중단'으로 구분)
 
 RD.CONFIG = {
   enemyLimit: 80,        // 필드 위 적이 이 수에 도달하면 패배

@@ -172,7 +172,10 @@ RD.GameLogic = (() => {
         if (!c) return;
         const t = G.packetRewards.shift(), u = this.addUnit(t, c.col, c.row);
         RD.Codex.make(t.id);
-        this.addFx({ k: 'combine', x: u.x, y: u.y, r: 130, color: 'rainbow', life: 1.0 });
+        // 조합 연출(무지개 폭발)과 헷갈리지 않게 보상 도착은 링 + '보상' 글자로 표시
+        this.addFx({ k: 'ring', x: u.x, y: u.y, r: 70, color: '#ffd54f', life: 0.6 });
+        this.addFloat(u.x, u.y - 52, '보상 도착', '#ffd54f', 26);
+        this.toast(`보상 유닛 배치  ·  [${RD.unitLevelName(t)}] ${t.name}`, '#ffd54f');
       }
     }
 

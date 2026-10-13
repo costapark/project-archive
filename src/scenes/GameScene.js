@@ -13,6 +13,7 @@ RD.GameScene = class GameScene extends Phaser.Scene {
     this.logic = new RD.GameLogic({ speed: this.registry.get('speed') || 1, onGameOver: () => this.onGameOver(), buffs: RD.Meta.runBuffs() });
     this.runResult = null;
     RD.debug.attach(this);
+    RD.Telemetry.diveStart(this.logic.G.diff);     // 플레이 통계 (src/core/telemetry.js)
 
     this.add.image(0, 0, 'bg_map').setOrigin(0).setDepth(0);
     this.gUnder = this.add.graphics().setDepth(1);     // 포탈, 사거리, 그림자
@@ -50,6 +51,7 @@ RD.GameScene = class GameScene extends Phaser.Scene {
     // 기억 파편 정산 (한 판에 한 번) → GameOverScene 에서 표시
     if (!this.runResult) this.runResult = RD.Meta.finishRun(G.round, G.diff, this.logic.buffs,
       { kills: G.kills, bossKills: G.bossKills, time: G.time, topGrade: G.topGrade });
+    RD.Telemetry.diveEnd(G.round, G.overReason, G.overReason === RD.QUIT_REASON);
     this.endDrag();
     this.scene.launch('GameOverScene');
   }
@@ -130,6 +132,7 @@ RD.GameScene = class GameScene extends Phaser.Scene {
   update(time, delta) {
     const dt = Math.min(0.05, delta / 1000), L = this.logic, G = L.G;
     if (G.mode === 'playing') for (let i = 0; i < G.speed && G.mode === 'playing'; i++) L.update(dt);
+    RD.Telemetry.round(G.round);
     if (L.shakeReq) { L.shakeReq = 0; this.cameras.main.shake(600, 0.012); }   // 패킷 등장·처치 흔들림
     // 레거시 첫 획득 연출: 곡이 끝나면(또는 maxSec 이 지나면) 맵을 원래대로
     if (L.eventReq) { const ev = L.eventReq; L.eventReq = null; this.startLegacyEvent(ev); }
