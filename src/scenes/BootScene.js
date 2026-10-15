@@ -10,7 +10,7 @@ RD.BootScene = class BootScene extends Phaser.Scene {
     const go = () => { if (!this._rdStarted) { this._rdStarted = true; this.scene.start('PreloadScene'); } };
     if (document.fonts && document.fonts.load) {
       Promise.all(['400', 'bold'].map(w => document.fonts.load(`${w} 20px Pretendard`, '가나다ABC123')))
-        .then(r => { if (!r.every(f => f.length)) console.warn('[RD] Pretendard 폰트를 불러오지 못해 시스템 폰트를 사용합니다 (인터넷 연결 확인)'); go(); }, go);
+        .then(r => { if (!r.every(f => f.length)) console.warn('[RD] Pretendard 폰트를 불러오지 못해 시스템 폰트를 사용합니다'); go(); }, go);
       this.time.delayedCall(3000, go);
     } else go();
   }

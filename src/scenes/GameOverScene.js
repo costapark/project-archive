@@ -47,6 +47,7 @@ RD.GameOverScene = class GameOverScene extends Phaser.Scene {
     }
     const restart = () => { if (!this.done) { this.done = true; RD.BGM.start(0); this.scene.start('GameScene'); } };
     const lobby = () => { if (!this.done) { this.done = true; this.scene.stop('GameScene'); this.scene.start('LobbyScene'); } };
+    this.onBack = () => { lobby(); return true; };   // 안드로이드 뒤로가기 → 로비로
     new RD.UIButton(this, RD.UI.btnRestart, { scheme: 'gold', labelSize: 48, onClick: restart }).set('다시 하기', '', true);
     new RD.UIButton(this, RD.UI.btnLobby, { scheme: 'mine', labelSize: 48, onClick: lobby }).set('로비로', '', true);
     this.input.keyboard && this.input.keyboard.on('keydown', e => { if (e.key === 'Enter') restart(); else if (e.key === 'Escape') lobby(); });

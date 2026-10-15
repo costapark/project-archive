@@ -37,6 +37,7 @@ RD.UI = {
   btnRestart: { x: 120, y: 1250, w: 400, h: 140 },   // 게임 오버: 다시 하기
   btnLobby:   { x: 560, y: 1250, w: 400, h: 140 },   // 게임 오버: 로비로
   btnQuit:    { x: 340, y: 960, w: 400, h: 120 },    // 일시정지: 다이브 중단
+  btnPauseSet: { x: 340, y: 1110, w: 400, h: 110 },  // 일시정지: 설정 (소리 · 진동 · 게임 방법)
 };
 
 RD.FX_SPEED = { arrow: 1300, bullet: 1900, orb: 860, fire: 800, holy: 960, missile: 1040 };

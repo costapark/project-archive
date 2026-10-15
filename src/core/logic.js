@@ -70,6 +70,8 @@ RD.GameLogic = (() => {
 
     // ── 알림 / 연출 데이터 ──
     toast(text, color) { this.toastQueue.push({ text, color: color || '#ffffff' }); }
+    // 진동 (화면 있는 게임에서만, 설정에서 끌 수 있음. 시뮬레이터에서는 아무것도 안 함)
+    buzz(kind) { if (RD.Platform) RD.Platform.haptic(kind); }
     addFloat(x, y, text, color, size) {
       const F = this.G.floats;
       F.push({ x, y, text, color, size: size || 28, t: 0, life: 0.8 });
@@ -257,6 +259,7 @@ RD.GameLogic = (() => {
       if (!this.spend(cur, cost)) return;
       const t = pick(RD.UNITS_BY_GRADE[0]);
       const u = this.addUnit(t, cell.col, cell.row);
+      this.buzz('tick');
       this.addFloat(u.x, u.y - 52, t.name, '#ffffff', 26);
       this.addFx({ k: 'ring', x: u.x, y: u.y, r: 52, color: RD.unitColorStr(t), life: 0.4 });
       return u;
@@ -280,6 +283,7 @@ RD.GameLogic = (() => {
       G.selected = nu;
       this.addFx({ k: 'combine', x: nu.x, y: nu.y, r: 92, color: RD.unitColorStr(nt), life: 0.7 });
       this.toast(`조합 성공!  [${RD.GRADES[nt.grade].name}] ${nt.name}`, RD.unitTextColor(nt));
+      this.buzz('merge');
       return nu;
     }
     canCombine(u) {
@@ -474,6 +478,7 @@ RD.GameLogic = (() => {
       if (e.boss) {
         this.addFx({ k: 'combine', x: e.x, y: e.y, r: 160, color: '#ffd54f', life: 0.9 });
         this.toast(`보스 처치!  +${g} 골드`, '#ffd54f');
+        this.buzz('success');
         G.boss = null;
         G.bossKills++;
         if (e.special) {                 // 특별 보스 보상: 해당 레벨 랜덤 유닛 1개 (타입도 랜덤)

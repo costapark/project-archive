@@ -43,6 +43,8 @@ RD.GameScene = class GameScene extends Phaser.Scene {
       this.scene.stop('GameOverScene');
     });
     this.scene.launch('UIScene');
+    RD.Platform.setAwake(true);                    // 다이브 중에는 화면이 꺼지지 않게 (토스)
+    this.events.once('shutdown', () => RD.Platform.setAwake(false));
   }
 
   onGameOver() {
@@ -52,6 +54,8 @@ RD.GameScene = class GameScene extends Phaser.Scene {
     if (!this.runResult) this.runResult = RD.Meta.finishRun(G.round, G.diff, this.logic.buffs,
       { kills: G.kills, bossKills: G.bossKills, time: G.time, topGrade: G.topGrade });
     RD.Telemetry.diveEnd(G.round, G.overReason, G.overReason === RD.QUIT_REASON);
+    RD.Platform.setAwake(false);
+    if (G.overReason !== RD.QUIT_REASON) RD.Platform.haptic('error');
     this.endDrag();
     this.scene.launch('GameOverScene');
   }
@@ -105,6 +109,7 @@ RD.GameScene = class GameScene extends Phaser.Scene {
   startLegacyEvent(ev) {
     if (this.legacyEv) this.endLegacyEvent(true);
     this.legacyEv = { ev, t: 0 };
+    RD.Platform.haptic('success');
     if (ev.bgm) RD.BGM.playOnce(ev.bgm);
     const cam = this.cameras.main;
     cam.shake(1000, 0.018);
@@ -133,7 +138,7 @@ RD.GameScene = class GameScene extends Phaser.Scene {
     const dt = Math.min(0.05, delta / 1000), L = this.logic, G = L.G;
     if (G.mode === 'playing') for (let i = 0; i < G.speed && G.mode === 'playing'; i++) L.update(dt);
     RD.Telemetry.round(G.round);
-    if (L.shakeReq) { L.shakeReq = 0; this.cameras.main.shake(600, 0.012); }   // 패킷 등장·처치 흔들림
+    if (L.shakeReq) { L.shakeReq = 0; this.cameras.main.shake(600, 0.012); RD.Platform.haptic('heavy'); }   // 패킷 등장·처치 흔들림
     // 레거시 첫 획득 연출: 곡이 끝나면(또는 maxSec 이 지나면) 맵을 원래대로
     if (L.eventReq) { const ev = L.eventReq; L.eventReq = null; this.startLegacyEvent(ev); }
     if (this.legacyEv && G.mode === 'playing') {

@@ -4,7 +4,8 @@
  *  - 타이틀 · 로비는 RD.BGM_MENU 의 곡들을 번갈아 재생 (menu())
  *  - 특별 보스(RD.SPECIAL_BOSSES)가 살아 있는 동안은 그 보스 곡 (setRound 의 override)
  *  - playOnce(url): 이벤트 곡을 한 번만 틀고, 끝나면 원래 곡으로 돌아감 (레거시 첫 획득 연출)
- *  - 일시정지 / 게임 오버 / 탭 숨김 시 멈춤
+ *  - 일시정지 / 게임 오버 / 탭 숨김(앱 백그라운드) 시 바로 멈추고, 돌아오면 다시 재생
+ *  - 설정에서 배경 음악을 끄면(setMuted) 재생 자체를 멈춤
  *  - 모바일 자동재생 제한: 첫 터치(다이브 버튼 등) 안에서 play() 해야 하므로
  *    play 가 거부되면 다음 터치 때 다시 시도
  *  - 웹 주소로 열었을 때는 효과음과 같은 Web Audio 마스터(리미터)로 보내 볼륨을 GainNode 로 조절
@@ -15,7 +16,7 @@ window.RD = window.RD || {};
 
 RD.BGM = (() => {
   const FADE = 0.8;                 // 페이드 시간(초)
-  let el = null, cur = null, want = null, paused = false, vol = 0, fadeTimer = null, blocked = false;
+  let el = null, cur = null, want = null, paused = false, muted = false, vol = 0, fadeTimer = null, blocked = false;
   let gain = null;                  // Web Audio 경로일 때 볼륨 노드
   let listIdx = 0;                  // 플레이리스트(타이틀 · 로비 음악)에서 지금 곡 번호
   let once = null, base = null;     // 한 번만 트는 이벤트 곡 / 그동안 원래 나와야 할 곡
@@ -34,7 +35,7 @@ RD.BGM = (() => {
         if (!cur || !cur.list) return;
         listIdx = (listIdx + 1) % cur.list.length;
         el.src = (RD.BGM_BASE || '') + cur.list[listIdx];
-        if (!paused) tryPlay();
+        if (!off()) tryPlay();
       });
       routeToMaster();
     }
@@ -59,6 +60,7 @@ RD.BGM = (() => {
     if (gain) { const t = gain.context.currentTime; gain.gain.cancelScheduledValues(t); gain.gain.setValueAtTime(v, t); }
     else el.volume = v;
   }
+  const off = () => paused || muted || document.hidden;
   function trackFor(round) {
     const r = Math.max(1, round);
     return RD.BGM_TRACKS.find(t => r >= t.from && r <= t.to) || null;
@@ -100,23 +102,23 @@ RD.BGM = (() => {
         a.loop = !next.list && !next.once;
         a.src = (RD.BGM_BASE || '') + (next.list ? next.list[listIdx % next.list.length] : next.url);
         a.currentTime = 0;
-        if (!paused) { tryPlay(); fadeTo(RD.BGM_VOLUME); }
+        if (!off()) { tryPlay(); fadeTo(RD.BGM_VOLUME); }
         if (want !== cur) apply();          // 페이드 도중 목표가 또 바뀐 경우
       };
       if (cur && !a.paused && vol > 0) fadeTo(0, swap); else { vol = 0; setVol(0); swap(); }
       return;
     }
     if (!cur) return;
-    if (paused) { if (!a.paused) a.pause(); }
+    if (off()) { if (!a.paused) a.pause(); }
     else if (a.paused) { tryPlay(); fadeTo(RD.BGM_VOLUME); }
   }
 
   // 막혔던 재생을 다음 사용자 입력에서 재시도
-  const unlock = () => { if (blocked && cur && !paused) tryPlay(); };
+  const unlock = () => { if (blocked && cur && !off()) tryPlay(); };
   ['pointerdown', 'touchend', 'keydown'].forEach(ev => document.addEventListener(ev, unlock, true));
   document.addEventListener('visibilitychange', () => {
     if (!el || !cur) return;
-    if (document.hidden) el.pause(); else if (!paused) tryPlay();
+    if (document.hidden) el.pause(); else if (!off()) { tryPlay(); if (!gain) setVol(vol); }
   });
 
   return {
@@ -128,6 +130,8 @@ RD.BGM = (() => {
       if (t !== want) { want = t; apply(); }
     },
     setPaused(p) { if (p !== paused) { paused = p; apply(); } },
+    setMuted(m) { m = !!m; if (m !== muted) { muted = m; apply(); } },
+    get muted() { return muted; },
     // 다이브 버튼처럼 사용자 입력 안에서 호출 → 모바일에서도 재생 허용
     start(round) { paused = false; once = null; want = base = trackFor(round || 0); apply(); },
     stop() { once = null; want = null; apply(); },

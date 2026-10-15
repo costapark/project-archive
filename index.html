@@ -8,31 +8,43 @@
 <meta name="theme-color" content="#050409">
 <title>프로젝트 아카이브 (Project Archive)</title>
 <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <style>
-  /* Pretendard 웹폰트 (한글 2,350자 서브셋): PC 설치본 → jsDelivr → unpkg 순. 모두 실패하면 RD.FONT 의 시스템 폰트 */
+  /* Pretendard 웹폰트 (한글 2,350자 서브셋, assets/fonts). 빌드 때 파일 안에 내장되어 인터넷 연결 없이 표시 */
   @font-face { font-family: 'Pretendard'; font-weight: 400; font-display: swap;
-    src: local('Pretendard Regular'), local('Pretendard-Regular'),
-      url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/woff2-subset/Pretendard-Regular.subset.woff2') format('woff2'),
-      url('https://unpkg.com/pretendard@1.3.9/dist/web/static/woff2-subset/Pretendard-Regular.subset.woff2') format('woff2'); }
+    src: url('assets/fonts/Pretendard-Regular.subset.woff2') format('woff2'); }
   @font-face { font-family: 'Pretendard'; font-weight: 700; font-display: swap;
-    src: local('Pretendard Bold'), local('Pretendard-Bold'),
-      url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/woff2-subset/Pretendard-Bold.subset.woff2') format('woff2'),
-      url('https://unpkg.com/pretendard@1.3.9/dist/web/static/woff2-subset/Pretendard-Bold.subset.woff2') format('woff2'); }
+    src: url('assets/fonts/Pretendard-Bold.subset.woff2') format('woff2'); }
 </style>
 <style>
   html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #050409; overflow: hidden;
     touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none;
     font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
-  #game { width: 100%; height: 100%; }
+  /* 게임 화면은 안전 영역(노치 · 홈 바) 안쪽에. 토스 앱에서는 RD.Platform 이 상단 더보기/X 버튼 높이까지 더해 --rd-* 를 지정 */
+  #game { position: fixed; top: var(--rd-top, env(safe-area-inset-top, 0px)); bottom: var(--rd-bottom, env(safe-area-inset-bottom, 0px));
+    left: var(--rd-left, env(safe-area-inset-left, 0px)); right: var(--rd-right, env(safe-area-inset-right, 0px)); }
+  /* 백업 코드 입력/복사 상자 (RD.BackupUI.box) */
+  .rd-box { position: fixed; inset: 0; z-index: 10; background: rgba(2, 1, 10, 0.88); display: flex; align-items: center; justify-content: center;
+    padding: 16px; touch-action: auto; -webkit-user-select: text; user-select: text; }
+  .rd-box-panel { width: 100%; max-width: 440px; background: #0b0f24; border: 2px solid #00e5ff; box-shadow: 0 0 18px rgba(0, 229, 255, 0.25);
+    padding: 20px; box-sizing: border-box; color: #e6ecff; }
+  .rd-box-title { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+  .rd-box-desc { font-size: 14px; line-height: 1.5; color: #b9d4ee; margin-bottom: 12px; }
+  .rd-box textarea { width: 100%; height: 120px; box-sizing: border-box; background: #050409; color: #7dffb0; border: 1px solid #3a4a6a;
+    font: 13px/1.4 ui-monospace, Menlo, monospace; padding: 8px; resize: none; word-break: break-all; -webkit-user-select: text; user-select: text; }
+  .rd-box-btns { display: flex; gap: 10px; margin-top: 14px; }
+  .rd-box-btns button { flex: 1; height: 48px; font: 700 17px 'Pretendard', sans-serif; color: #fff; background: rgba(0, 229, 255, 0.15);
+    border: 2px solid #00e5ff; border-radius: 0; }
+  .rd-box-btns .rd-cancel { border-color: #7fa8c9; background: rgba(127, 168, 201, 0.12); }
 </style>
 </head>
 <body>
 <div id="game"></div>
 <!-- build:scripts (tools/build.js 가 아래 스크립트들을 dist 파일에 인라인) -->
 <script src="lib/phaser.min.js"></script>
+<script src="lib/ait-sdk.js"></script>
 <script src="src/data/config.js"></script>
 <script src="src/core/save.js"></script>
+<script src="src/core/platform.js"></script>
 <script src="src/core/telemetry.js"></script>
 <script src="src/data/layout.js"></script>
 <script src="src/data/units.js"></script>

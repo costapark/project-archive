@@ -103,7 +103,7 @@ RD.UIScene = class UIScene extends Phaser.Scene {
       this.add.text(W / 2, 820, '화면을 터치하면 계속합니다', S(32, '#d4c8ea', 0, 'normal')).setOrigin(0.5)]);
     this.pauseZone = this.add.zone(0, UI.hudH, W, UI.panelY - UI.hudH).setOrigin(0).setInteractive();
     this.pauseZone.on('pointerup', p => {
-      if (this.L.G.mode === 'paused' && !this.bookOpen && !RD.util.inRect(p, UI.btnQuit)) { this.quitArmed = false; this.L.togglePause(); }
+      if (this.L.G.mode === 'paused' && !this.bookOpen && !this.rdModal && !RD.util.inRect(p, UI.btnQuit) && !RD.util.inRect(p, UI.btnPauseSet)) { this.quitArmed = false; this.L.togglePause(); }
     });
     // 다이브 중단 (일시정지 중에만 보임): 두 번 눌러야 중단 → 게임 오버(기억 파편 정산) 화면
     this.quitArmed = false;
@@ -114,11 +114,19 @@ RD.UIScene = class UIScene extends Phaser.Scene {
       this.quitArmed = false;
       L.gameOver(RD.QUIT_REASON);
     } }).setDepth(41);
+    // 설정 (일시정지 중에만 보임)
+    this.btnPauseSet = new RD.UIButton(this, UI.btnPauseSet, { scheme: 'dark', labelSize: 38, onClick: () => {
+      if (this.L.G.mode !== 'paused' || this.bookOpen || this.rdModal) return;
+      this.quitArmed = false;
+      RD.SettingsUI.open(this);
+    } }).setDepth(41);
+    this.btnPauseSet.set('설정', '', true);
     // 히든 강화 잠김 안내 (히든 유닛을 처음 얻기 전)
     const hb = UI.btnHidden;
     this.hiddenHint = this.add.text(hb.x + hb.w / 2, hb.y + hb.h / 2, '레거시 유닛을 만들면\n레거시 강화 개방', S(22, '#7d7290', 0, 'normal')).setOrigin(0.5).setAlign('center');
 
     this.buildBook();
+    this.startExtras();
 
     // ── 알림 ──
     this.toasts = [];
@@ -128,6 +136,7 @@ RD.UIScene = class UIScene extends Phaser.Scene {
       this.input.keyboard.on('keydown', e => {
         const L = this.L, G = L.G;
         if (G.mode === 'over') return;
+        if (this.rdModal) { if (e.key === 'Escape') this.rdModal.close(); return; }
         if (this.bookOpen) { if (e.key === 'Escape' || e.key === 'b' || e.key === 'B') this.closeBook(); return; }
         if (e.key === 'b' || e.key === 'B') return this.openBook();
         if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') return L.togglePause();
@@ -144,6 +153,33 @@ RD.UIScene = class UIScene extends Phaser.Scene {
         else if ('qwe'.includes(k) && k.length === 1) L.autoCombine(RD.AUTO_KEYS['qwe'.indexOf(k)]);
       });
     }
+  }
+
+  // 앱이 백그라운드로 가면(홈 버튼 · 다른 앱) 다이브를 일시정지 → 돌아왔을 때 갑자기 진행되지 않게
+  //  첫 다이브라면 게임 방법을 먼저 보여 주고, 확인을 누르면 시작
+  startExtras() {
+    const onVis = () => { if (document.hidden && this.L.G.mode === 'playing') this.L.togglePause(); };
+    document.addEventListener('visibilitychange', onVis);
+    this.events.once('shutdown', () => document.removeEventListener('visibilitychange', onVis));
+    const st = RD.Save.data.settings;
+    if (!st.help) {
+      const G = this.L.G;
+      if (G.mode === 'playing') G.mode = 'paused';
+      RD.HelpUI.open(this, { okLabel: '다이브 시작', onClose: () => {
+        st.help = true; RD.Save.save();
+        if (G.mode === 'paused') G.mode = 'playing';
+      } });
+    }
+  }
+
+  // 뒤로가기(안드로이드): 도감 닫기 → 진행 중이면 일시정지 → 일시정지 중이면 계속하기
+  onBack() {
+    const G = this.L.G;
+    if (G.mode === 'over') return false;
+    if (this.bookOpen) { this.closeBook(); return true; }
+    this.quitArmed = false;
+    this.L.togglePause();
+    return true;
   }
 
   // ── 히든 레시피 도감: 전체 화면 오버레이 (열려 있는 동안 게임 일시정지) ──
@@ -387,6 +423,7 @@ RD.UIScene = class UIScene extends Phaser.Scene {
     // 일시정지 (도감을 연 동안은 도감이 대신 덮음)
     this.pauseLayer.setVisible(G.mode === 'paused' && !this.bookOpen);
     this.btnQuit.setVisible(G.mode === 'paused' && !this.bookOpen);
+    this.btnPauseSet.setVisible(G.mode === 'paused' && !this.bookOpen);
     if (G.mode !== 'paused') this.quitArmed = false;
     this.btnQuit.set(this.quitArmed ? '정말 중단?' : '다이브 중단', this.quitArmed ? '한 번 더 누르면 종료' : '로비로 (파편 정산)', true);
     if (this.bookOpen) this.updateBook();

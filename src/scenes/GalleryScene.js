@@ -148,6 +148,8 @@ RD.GalleryScene = class GalleryScene extends Phaser.Scene {
     this.time.delayedCall(0, () => { this.modal = null; });   // 같은 탭이 아래 카드를 누르지 않게 한 틱 지연
   }
 
+  onBack() { if (this.modal) this.closeDetail(); else this.back(); return true; }   // 안드로이드 뒤로가기
+
   back() {
     if (this.leaving) return;
     this.leaving = true;

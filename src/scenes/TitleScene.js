@@ -27,6 +27,8 @@ RD.TitleScene = class TitleScene extends Phaser.Scene {
     this.add.text(60, 120, 'NEURAL DIVE LINK', S(26, '#00e5ff', 0, 'normal')).setOrigin(0, 0.5);
     this.linkState = this.add.text(W - 60, 120, '● STANDBY', S(26, '#ff2bd6', 0, 'normal')).setOrigin(1, 0.5);
     this.tweens.add({ targets: this.linkState, alpha: 0.3, duration: 700, yoyo: true, repeat: -1 });
+    // 설정 (소리 · 진동 · 게임 방법)
+    RD.Neon.button(this, { x: 60, y: 200, w: 200, h: 90 }, '설정', '', 0x7fa8c9, () => RD.SettingsUI.open(this), { size: 34, backing: true });
 
     // ── 타이틀 ──
     this.add.text(W / 2, 440, 'GRAND ARCHIVE // CORE SERVER', S(28, '#7fa8c9', 0, 'normal')).setOrigin(0.5).setLetterSpacing(4);
@@ -63,13 +65,14 @@ RD.TitleScene = class TitleScene extends Phaser.Scene {
     this.add.graphics().lineStyle(2, 0x7dffb0, 0.25).strokeRect(60, 1680, W - 120, 80);
     this.typeMessage();
 
-    this.add.text(W / 2, 1860, 'v0.2  ·  RANDOM DEFENSE  ·  PROJECT ARCHIVE', S(22, '#4d5b78', 0, 'normal')).setOrigin(0.5);
+    this.add.text(W / 2, 1860, `v${RD.VERSION}  ·  RANDOM DEFENSE  ·  PROJECT ARCHIVE`, S(22, '#4d5b78', 0, 'normal')).setOrigin(0.5);
 
     // 아무 곳이나 터치 → 접속 메뉴 / Enter·Space → 메뉴, 메뉴에서 한 번 더 → 이어하기(또는 새 게임)
     this.menu = null;
     RD.BGM.menu();                  // 자동재생이 막히면 첫 터치 때 다시 시도됨
-    this.input.once('pointerup', () => { RD.BGM.menu(); this.showMenu(); });
+    this.input.on('pointerup', () => { if (this.modal || this.menu) return; RD.BGM.menu(); this.showMenu(); });
     if (this.input.keyboard) this.input.keyboard.on('keydown', e => {
+      if (this.rdModal) { if (e.key === 'Escape') this.rdModal.close(); return; }
       if (e.key !== 'Enter' && e.key !== ' ') return;
       if (!this.menu) this.showMenu(); else this.connect();
     });
@@ -116,17 +119,25 @@ RD.TitleScene = class TitleScene extends Phaser.Scene {
   }
 
   newGame() {
-    if (RD.BackupUI.hasProgress() && !window.confirm('새 게임을 시작하면 지금 기록(기억 파편 · 메모리 카드 · 업적)이 모두 지워집니다.\n먼저 [게임 코드 발급]으로 백업해 두는 것을 권장합니다.\n\n정말 새로 시작할까요?')) return;
-    const diff = RD.Difficulty.get();
-    RD.Save.reset();
-    RD.Difficulty.set(diff);
-    this.connect();
+    const start = () => {
+      const diff = RD.Difficulty.get();
+      RD.Save.reset();
+      RD.Difficulty.set(diff);
+      this.connect();
+    };
+    if (!RD.BackupUI.hasProgress()) return start();
+    RD.Modal.confirm(this, {
+      title: '새 게임',
+      text: '지금 기록(기억 파편 · 메모리 카드 · 업적)이\n모두 지워집니다. 먼저 [게임 코드 발급]으로\n백업해 두는 것을 권장합니다.\n\n정말 새로 시작할까요?',
+      ok: '새로 시작', okColor: 0xff2bd6, onOk: start,
+    });
   }
 
   loadGame() {
-    if (!RD.BackupUI.load(this, 1160, !RD.BackupUI.hasProgress())) return;
-    RD.Neon.toast(this, '기록을 불러왔습니다', '#7dffb0', 1160);
-    this.time.delayedCall(500, () => this.connect());
+    RD.BackupUI.load(this, 1160, !RD.BackupUI.hasProgress(), () => {
+      RD.Neon.toast(this, '기록을 불러왔습니다', '#7dffb0', 1160);
+      this.time.delayedCall(500, () => this.connect());
+    });
   }
 
   connect() {

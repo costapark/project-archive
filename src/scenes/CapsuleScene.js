@@ -151,6 +151,8 @@ RD.CapsuleScene = class CapsuleScene extends Phaser.Scene {
     this.time.delayedCall(0, () => { this.modal = null; });
   }
 
+  onBack() { if (this.busy) return true; if (this.modal) this.closeResult(); else this.back(); return true; }   // 안드로이드 뒤로가기
+
   back() {
     if (this.leaving || this.busy) return;
     this.leaving = true;

@@ -162,6 +162,8 @@ RD.RecordScene = class RecordScene extends Phaser.Scene {
     this.minY = Math.min(0, RD.H - 40 - y);
   }
 
+  onBack() { this.back(); return true; }   // 안드로이드 뒤로가기
+
   back() {
     if (this.leaving) return;
     this.leaving = true;

@@ -1,6 +1,7 @@
 /* 게임 설정 & 밸런스 공식 (바닐라 버전과 동일한 수치) */
 window.RD = window.RD || {};
 
+RD.VERSION = '1.0.0';       // 화면 아래 버전 표기 (앱인토스 번들을 올릴 때마다 올림)
 RD.W = 1080;                // 논리 해상도 (9:16 세로)
 RD.H = 1920;
 RD.TEXT_RES = Math.min(2, Math.max(1, Math.ceil(window.devicePixelRatio || 1)));  // 텍스트 렌더 해상도 (선명도)

@@ -9,7 +9,7 @@
  *   y 1030~1120  난이도 [이지][노멀][하드] 각 190x90
  *   y 1160~1310  [다이브 시작] 600x150
  *   y 1360~1490  [메모리 갤러리] [메모리 캡슐] 각 465x130
- *   y 1540~1640  [기록 · 업적] [작전 브리핑] 각 465x100
+ *   y 1540~1640  [기록 · 업적] [작전 브리핑] [설정] 각 300x100
  *   y 1690~1770  시스템 메시지 티커
  *   y 1860       버전
  */
@@ -61,12 +61,13 @@ RD.LobbyScene = class LobbyScene extends Phaser.Scene {
       const dot = this.add.circle(1006, 1374, 16, 0xff2a3d).setStrokeStyle(3, 0xffffff);
       this.tweens.add({ targets: dot, scale: 1.25, duration: 500, yoyo: true, repeat: -1 });
     }
-    RD.Neon.button(this, { x: 60, y: 1540, w: 465, h: 100 }, '기록 · 업적', '', 0xffc935, () => this.go('RecordScene', {}), { size: 38 });
+    RD.Neon.button(this, { x: 60, y: 1540, w: 300, h: 100 }, '기록 · 업적', '', 0xffc935, () => this.go('RecordScene', {}), { size: 36 });
     if (RD.Achieve.claimable().length) {   // 받을 보상 알림 점
-      const dot = this.add.circle(506, 1554, 16, 0xff2a3d).setStrokeStyle(3, 0xffffff);
+      const dot = this.add.circle(344, 1554, 16, 0xff2a3d).setStrokeStyle(3, 0xffffff);
       this.tweens.add({ targets: dot, scale: 1.25, duration: 500, yoyo: true, repeat: -1 });
     }
-    RD.Neon.button(this, { x: 555, y: 1540, w: 465, h: 100 }, '작전 브리핑', '', 0x7c4dff, () => this.openBriefing(), { size: 38 });
+    RD.Neon.button(this, { x: 390, y: 1540, w: 300, h: 100 }, '작전 브리핑', '', 0x7c4dff, () => this.openBriefing(), { size: 36 });
+    RD.Neon.button(this, { x: 720, y: 1540, w: 300, h: 100 }, '설정', '', 0x7fa8c9, () => { if (!this.modal) RD.SettingsUI.open(this); }, { size: 36 });
 
     // ── 티커 ──
     const last = SV.stats.last;
@@ -85,10 +86,11 @@ RD.LobbyScene = class LobbyScene extends Phaser.Scene {
     this.ticker = this.add.text(80, 1730, '', S(28, '#7dffb0', 0, 'normal')).setOrigin(0, 0.5);
     this.add.graphics().lineStyle(2, 0x7dffb0, 0.25).strokeRect(60, 1690, W - 120, 80);
     this.typeMessage();
-    this.add.text(W / 2, 1860, 'v0.2  ·  RANDOM DEFENSE  ·  PROJECT ARCHIVE', S(22, '#4d5b78', 0, 'normal')).setOrigin(0.5);
+    this.add.text(W / 2, 1860, `v${RD.VERSION}  ·  RANDOM DEFENSE  ·  PROJECT ARCHIVE`, S(22, '#4d5b78', 0, 'normal')).setOrigin(0.5);
 
     if (this.input.keyboard) {
       this.input.keyboard.on('keydown', e => {
+        if (this.rdModal) { if (e.key === 'Escape') this.rdModal.close(); return; }
         if (this.modal) { if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') this.closeBriefing(); return; }
         if (e.key === 'Enter' || e.key === ' ') this.dive();
       });
@@ -245,12 +247,20 @@ RD.LobbyScene = class LobbyScene extends Phaser.Scene {
     this.modal = c;
   }
 
-  copyBackup() { RD.BackupUI.copy(this, 1460); }
+  copyBackup() { this.closeBriefing(); RD.BackupUI.copy(this, 1460); }
 
   importBackup() {
-    if (!RD.BackupUI.load(this, 1460)) return;
-    this.scene.restart();
-    this.events.once('create', () => RD.Neon.toast(this, '백업 코드로 복원했습니다', '#7dffb0', 1460));
+    this.closeBriefing();
+    RD.BackupUI.load(this, 1460, false, () => {
+      this.scene.restart();
+      this.events.once('create', () => RD.Neon.toast(this, '백업 코드로 복원했습니다', '#7dffb0', 1460));
+    });
+  }
+
+  // 뒤로가기(안드로이드): 열린 창을 닫음. 로비가 첫 화면이라 그 외에는 종료 확인 (RD.Platform)
+  onBack() {
+    if (this.modal) { this.closeBriefing(); return true; }
+    return false;
   }
 
   closeBriefing() {
